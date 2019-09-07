@@ -88,6 +88,8 @@ function actionPage(){
     const discountCheckbox = document.getElementById('discount-checkbox');
     const min = document.getElementById('min'); 
     const max = document.getElementById('max');
+    const search = document.querySelector('.search-wrapper_input');
+    const searchBtn = document.querySelector('.search-btn');
     
     discountCheckbox.addEventListener('click', () => {
         cards.forEach((card) => {
@@ -115,19 +117,18 @@ function actionPage(){
     min.addEventListener('change', filterPrice)
     max.addEventListener('change', filterPrice)
 
+    searchBtn.addEventListener('click', () => {
+       const searchText = new RegExp(search.value.trim(),'i'); // получение регулярныx выражений 
+       cards.forEach((card)=>{
+           const title = card.querySelector('.card-title');
+           if (!searchText.test(title.textContent)){
+               card.parentNode.style.display = 'none'
+           }
+       }); 
+    });
 };
 actionPage();
 // end фильтор акции
 
 
-function first(name){
-    console.log(1);
-    name();
-};
-function second(a,b){
-    console.log(a*b);
-}
-first(function (){
-    console.log(500*51)
-});
 
