@@ -5,7 +5,7 @@ function toggLeCheckbox() {
     const checkbox = document.getElementById('discount-checkbox');
 
     checkbox.addEventListener('change', function () {
-         if (this.checked) {
+        if (this.checked) {
             this.nextElementSibling.classList.add('checked');
         } else {
             this.nextElementSibling.classList.remove('checked');
@@ -83,52 +83,72 @@ addCart();
 
 
 // фильтор акции
-function actionPage(){
+function actionPage() {
     const cards = document.querySelectorAll('.goods .card');
     const discountCheckbox = document.getElementById('discount-checkbox');
-    const min = document.getElementById('min'); 
+    const min = document.getElementById('min');
     const max = document.getElementById('max');
     const search = document.querySelector('.search-wrapper_input');
     const searchBtn = document.querySelector('.search-btn');
-    
-    discountCheckbox.addEventListener('click', () => {
+
+    discountCheckbox.addEventListener('click', filter);
+
+    min.addEventListener('change', filter)
+    max.addEventListener('change', filter)
+
+    //строка поиск
+    searchBtn.addEventListener('click', () => {
+        const searchText = new RegExp(search.value.trim(), 'i'); // получение регулярныx выражений / 'i' игнорирует регистер
         cards.forEach((card) => {
-            if(discountCheckbox.checked){
-                if(!card.querySelector('.card-sale')){
-                     card.parentNode.style.display = 'none';
-                }
+            const title = card.querySelector('.card-title');
+            if (!searchText.test(title.textContent)) {
+                card.parentNode.style.display = 'none'
             } else {
-                    card.parentNode.style.display = '';
-            }
-        });
-    });
-    function filterPrice(){
-        cards.forEach((card) => {
-            const cardPrice = card.querySelector('.card-price');
-            const price = parseFloat(cardPrice.textContent);
-            
-            if((min.value && price < min.value) || (max.value && price > max.value)){
-                card.parentNode.style.display = 'none';
-            }else {
                 card.parentNode.style.display = '';
             }
         });
-    }
-    min.addEventListener('change', filterPrice)
-    max.addEventListener('change', filterPrice)
-
-    searchBtn.addEventListener('click', () => {
-       const searchText = new RegExp(search.value.trim(),'i'); // получение регулярныx выражений 
-       cards.forEach((card)=>{
-           const title = card.querySelector('.card-title');
-           if (!searchText.test(title.textContent)){
-               card.parentNode.style.display = 'none'
-           }
-       }); 
+        search.value = '';
     });
+
+    function filter() {
+        cards.forEach((card) => {
+            const cardPrice = card.querySelector('.card-price');
+            const price = parseFloat(cardPrice.textContent);
+            const discount = card.querySelector('.card-sale');
+
+            if ((min.value && price < min.value) || (max.value && price > max.value)) {
+                card.parentNode.style.display = 'none';
+            } else if (discountCheckbox.checked && !discount) {
+                card.parentNode.style.display = 'none';
+            } else {
+                card.parentNode.style.display = '';
+            }
+
+        });
+    };
 };
 actionPage();
 // end фильтор акции
 
-
-
+//get data
+function getData() {
+    const goodsWrapper = document.querySelector('.goods')
+    fetch('../db/db.json') //API
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Данные не были получины, ошибка: ' + response.status)
+            }
+        })
+        .then((data) => {
+            response.json()
+        })
+        .catch((err) => {
+            console.warn(err);
+            goodsWrapper.innerHTML = '<div style ="color:red; font-size:25px;margin:auto;">Упс что-то пошло не так !</div>'
+        });
+        //получили данные / вермя 55:13
+};
+getData()
+//end get data
